@@ -14,48 +14,48 @@ default-run = "hunter"
 
 
 [dependencies]
-termion = "1.5"
-unicode-width = "0.1.5"
-lazy_static = "1"
+termion = "1.5.6"
+unicode-width = "0.1.8"
+lazy_static = "1.4.0"
 natord = "1.0.9"
-lscolors = { version = "0.6.0", features = [ "ansi_term" ] }
+lscolors = { version = "0.7.1", features = [ "ansi_term" ] }
 tree_magic_fork = "0.2.2"
-rayon = "1.3"
-dirs-2 = "1.1.0"
-users = "0.8"
-chrono = "0.4"
-libc = "0.2.51"
-failure = "0.1.5"
-failure_derive = "0.1.1"
-notify = "4.0.14"
+rayon = "1.5.0"
+dirs-2 = "3.0.1"
+users = "0.11.0"
+chrono = "0.4.19"
+libc = "0.2.82"
+failure = "0.1.8"
+failure_derive = "0.1.8"
+notify = "4.0.15"
 parse-ansi = "0.1.6"
 signal-notify = "0.1.3"
-systemstat = "0.1.5"
-mime_guess = "2.0"
+systemstat = "0.1.6"
+mime_guess = "2.0.3"
 async_value = "0.2.7"
-osstrtools = "0.2"
-pathbuftools = "0.1"
-clap = "2.33"
-mime = "0.3.13"
-base64 = "0.10.1"
-strum = "0.15"
-strum_macros = "0.15"
-rust-ini = "0.13"
-derivative = "1.0.3"
-itertools = "0.8"
-nix = "0.17"
-strip-ansi-escapes = "0.1"
-crossbeam = "0.7"
-parking_lot = "0.10"
+osstrtools = "0.2.2"
+pathbuftools = "0.1.2"
+clap = "2.33.3"
+mime = "0.3.16"
+base64 = "0.13.0"
+strum = "0.20.0"
+strum_macros = "0.20.1"
+rust-ini = "0.16.1"
+derivative = "2.2.0"
+itertools = "0.10.0"
+nix = "0.19.1"
+strip-ansi-escapes = "0.1.0"
+crossbeam = "0.8.0"
+parking_lot = "0.11.1"
 
 
-image = { version = "0.21.1", optional = true }
-gstreamer = { version = "0.14", optional = true }
-gstreamer-app = { version = "0.14", optional = true }
-gstreamer-player = { version = "0.14", optional = true }
-gstreamer-video = { version = "0.14", optional = true }
-gstreamer-base = { version = "0.14", optional = true }
-sixel-sys = { version="0.3.1", optional = true }
+image = { version = "0.23.12", optional = true }
+gstreamer = { version = "0.16.5", optional = true }
+gstreamer-app = { version = "0.16.5", optional = true }
+gstreamer-player = { version = "0.16.5", optional = true }
+gstreamer-video = { version = "0.16.6", optional = true }
+gstreamer-base = { version = "0.16.5", optional = true }
+sixel-sys = { version = "0.3.1", optional = true }
 
 # Need extra section to avoid conflict with features
 [dependencies.sixel-rs]
@@ -64,8 +64,8 @@ version = "0.3.2"
 optional = true
 
 [build-dependencies]
-termion = "1.5"
-rustc_version = "0.2.3"
+termion = "1.5.6"
+rustc_version = "0.3.3"
 
 [features]
 default = ["img", "video", "sixel"]
