@@ -430,7 +430,7 @@ pub enum KeyBindError {
     #[fail(display = "Failed to parse keybind: {}", _0)]
     ParseKeyError(String),
     #[fail(display = "Trouble with ini file! Error: {}", _0)]
-    IniError(Arc<ini::ini::Error>),
+    IniError(Arc<ini::Error>),
     #[fail(display = "Couldn't parse as either char or u8: {}", _0)]
     CharOrNumParseError(String),
     #[fail(display = "Wanted {}, but got {}!", _0, _1)]
@@ -438,8 +438,8 @@ pub enum KeyBindError {
 
 }
 
-impl From<ini::ini::Error> for KeyBindError {
-    fn from(err: ini::ini::Error) -> Self {
+impl From<ini::Error> for KeyBindError {
+    fn from(err: ini::Error) -> Self {
         KeyBindError::IniError(Arc::new(err))
     }
 }

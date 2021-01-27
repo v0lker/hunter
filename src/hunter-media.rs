@@ -1,6 +1,7 @@
 // Based on https://github.com/jD91mZM2/termplay
 // MIT License
 
+use image::imageops::FilterType;
 use image::{RgbaImage, DynamicImage, GenericImageView};
 use base64;
 
@@ -133,8 +134,8 @@ fn image_preview(path: &str,
 
     let img = img.resize_exact(max_size.0 as u32,
                                max_size.1 as u32,
-                               image::FilterType::Gaussian)
-        .to_rgba();
+                               FilterType::Gaussian)
+        .to_rgba8();
     renderer.send_image(&img)?;
 
     Ok(())
@@ -150,8 +151,9 @@ impl ImgSize for gstreamer::Sample {
         let size = || {
             let caps = self.as_ref().get_caps()?;
             let caps = caps.get_structure(0)?;
-            let width = caps.get::<i32>("width")? as usize;
-            let height = caps.get::<i32>("height")? as usize;
+            // TODO: Improve unwrapping this Result<Option<T>>
+            let width = caps.get::<i32>("width").ok()?? as usize;
+            let height = caps.get::<i32>("height").ok()?? as usize;
             Some((width, height))
         };
         size().ok_or(format_err!("Can't get size from sample!"))
@@ -189,15 +191,15 @@ fn video_preview(path: &String,
     gst.process_first_frame(&renderer)?;
 
     gst.appsink.set_callbacks(
-        gstreamer_app::AppSinkCallbacks::new()
+        gstreamer_app::AppSinkCallbacks::builder()
             .new_sample({
                 move |sink| {
                     let renderer = crenderer.clone();
                     let gst = cgst.clone();
 
                     let sample = match sink.pull_sample() {
-                        Some(sample) => sample,
-                        None => return Err(gstreamer::FlowError::Eos)
+                        Ok(sample) => sample,
+                        Err(_) => return Err(gstreamer::FlowError::Eos),
                     };
 
                     let pos = gst.position();
@@ -383,13 +385,13 @@ impl Gstreamer {
         gstreamer::init()?;
 
         let player = ElementFactory::make("playbin", None)
-            .ok_or(format_err!("Can't create playbin"))?;
+            .or(Err(format_err!("Can't create playbin")))?;
 
         let videorate = ElementFactory::make("videorate", None)
-            .ok_or(format_err!("Can't create videorate element"))?;
+            .or(Err(format_err!("Can't create videorate element")))?;
 
         let sink = ElementFactory::make("appsink", None)
-            .ok_or(format_err!("Can't create appsink"))?;
+            .or(Err(format_err!("Can't create appsink")))?;
 
         let appsink = sink.clone()
             .downcast::<gstreamer_app::AppSink>()
@@ -405,8 +407,7 @@ impl Gstreamer {
 
         // make input for bin point to first element
         let sink = elems[0].get_static_pad("sink").unwrap();
-        let ghost = GhostPad::new(Some("sink"), &sink)
-            .ok_or(format_err!("Can't create GhostPad"))?;
+        let ghost = GhostPad::new(Some("sink"), sink.get_direction());
 
         ghost.set_active(true)?;
         bin.add_pad(&ghost)?;
@@ -461,7 +462,7 @@ impl Gstreamer {
         self.pause()?;
 
         let sample = self.appsink.pull_preroll()
-            .ok_or_else(|| format_err!("Couldn't read first frame!"))?;
+            .or(Err(format_err!("Couldn't read first frame!")))?;
 
         let (max_x, max_y) = renderer.read()
             .map_err(|_| format_err!("Failed at locking renderer!"))?
@@ -483,13 +484,18 @@ impl Gstreamer {
     }
 
     pub fn set_scaling(&self, x: usize, y: usize) -> MResult<()> {
-        use gstreamer::Caps;
+        use gstreamer::caps::Caps;
+        use gstreamer::structure::Structure;
 
-        let caps =
-            format!("video/x-raw,format=RGBA,width={},height={}",
-                    x,
-                    y);
-        let caps = Caps::from_string(&caps).unwrap();
+        let caps = Caps::builder_full()
+            .structure(
+                Structure::builder("video/x-raw")
+                    .field("format", &"RGBA")
+                    .field("width", &(x as i32))
+                    .field("height", &(y as i32))
+                    .build()
+            )
+            .build();
 
         self.change_format(caps)
     }
@@ -619,7 +625,7 @@ impl WithRaw for gstreamer::Sample {
             .ok_or(format_err!("Couldn't get buffer from frame!"))?;
 
         let map = buffer.map_readable()
-            .ok_or(format_err!("Couldn't get buffer from frame!"))?;
+            .or(Err(format_err!("Couldn't get buffer from frame!")))?;
 
         fun(map.as_slice())
     }
@@ -866,7 +872,7 @@ impl Renderer {
                 let (max_x, max_y) = self.max_size_pix(&img);
                 let img = img.resize_exact(max_x as u32,
                                            max_y as u32,
-                                           image::FilterType::Gaussian).to_rgba();
+                                           FilterType::Gaussian).to_rgba8();
 
                 self.send_image(&img)?;
                 self.send_media_meta(&img)?;
