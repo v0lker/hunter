@@ -18,7 +18,7 @@ termion = "1.5"
 unicode-width = "0.1.5"
 lazy_static = "1"
 natord = "1.0.9"
-lscolors = { version = "0.6.0", features = [ "ansi_term" ]  }
+lscolors = { version = "0.6.0", features = [ "ansi_term" ] }
 tree_magic_fork = "0.2.2"
 rayon = "1.3"
 dirs-2 = "1.1.0"
@@ -55,7 +55,7 @@ gstreamer-app = { version = "0.14", optional = true }
 gstreamer-player = { version = "0.14", optional = true }
 gstreamer-video = { version = "0.14", optional = true }
 gstreamer-base = { version = "0.14", optional = true }
-sixel-sys = { version="0.3.1" , optional = true }
+sixel-sys = { version="0.3.1", optional = true }
 
 # Need extra section to avoid conflict with features
 [dependencies.sixel-rs]
@@ -81,10 +81,6 @@ path = "src/main.rs"
 name = "hunter-media"
 path = "src/hunter-media.rs"
 required-features = ["img"]
-
-
-
-
 
 
 # These options increase performance and generate a smaller binary
